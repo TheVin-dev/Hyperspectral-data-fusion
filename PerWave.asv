@@ -15,25 +15,17 @@ function [datatable,coefficient] =  PerWave(hsicube,heightmap,cutoff,N,mask,tfor
     points = points(~mask_filt,:);
     coefficient = zeros(size(rawcube,3),2);
     datatable = cell(size(rawcube,3),1);
-    
+
     for wavelengthidx = 1:size(rawcube,3)
         I = zeros(length(points),1);
         D = zeros(length(points),1);
         
-%         P = [points,zeros(length(points),1)];
-%         cubeCoord2 = P*tform;
-%         x_newlist =  round(interp1([1 size(heightmap,2)], [1 size(rawcube,2)], cubeCoord2(:,2)),0);
-%         y_newlist =  round(interp1([1 size(heightmap,1)], [1 size(rawcube,1)], cubeCoord2(:,1)),0);
-%     	P_transformed = [x_newlist,y_newlist];
-%         nanind = any(isnan(P_transformed),2);
-%         P_transformed = P_transformed(~nanind,:);
-%         linearnanIndicesC = sub2ind(size(rawcube,[1,2,3]),P_transformed(:,2),P_transformed(:,1),wavelengthidx*ones(length(P_transformed(:,1)),1));
-%         linearnanIndicesH = sub2ind(size(heightmap),P_transformed(:,2),P_transformed(:,2));
-% 
-%         I_list = rawcube(linearnanIndicesC);
-%         D_list = heightmap(linearnanIndicesH);
-%         log_I(xor(isnan(log_I),isinf(abs(log_I)))) = 0;
-%         D_list(xor(isnan(log_I),isinf(abs(log_I)))) = 0;
+        P = [points,0];
+        cubeCoord2 = P*tform;
+        x_newlist =  round(interp1([1 size(heightmap,2)], [1 size(rawcube,2)], cubeCoord2(:,2)),0);
+        y_newlist =  round(interp1([1 size(heightmap,2)], [1 size(rawcube,2)], cubeCoord2(:,1)),0);
+    	
+
 
         for idx=1:length(points(:,1))
             tmpy = points(idx,2);
@@ -50,9 +42,9 @@ function [datatable,coefficient] =  PerWave(hsicube,heightmap,cutoff,N,mask,tfor
                 D(idx) = nan;
             end
 
-        end  
-
+        end         
         I = (I - min(min(I))) ./ (max(max(I) - min(min(I))));
+            
         log_I = log(abs(I));
         pureI = log_I(xor(~isnan(log_I),isinf(abs(log_I))));
         pureD = D(xor(~isnan(log_I),isinf(abs(log_I))));

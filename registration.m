@@ -1,6 +1,3 @@
-%%
-% 
-% 
 close all;
 datafolder ="Data\RegistrationInputs\";
 regfolder = "Data\RegistrationOutputs\";

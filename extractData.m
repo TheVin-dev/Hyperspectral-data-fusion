@@ -29,7 +29,7 @@ end
     sH = size(datacube,[1,2]);
     range = [1,sH(2),1,sH(1)];
     [~, cutoffidx] =min(abs(hypercube.Wavelength-650));
-%     grayImage = hyperpca(datacube,1);
+    grayImage = hyperpca(datacube,1);
 %     figure;
 %     image(grayImage,"CDataMapping","scaled");colormap('gray');
 %     daspect([1 1 1])
