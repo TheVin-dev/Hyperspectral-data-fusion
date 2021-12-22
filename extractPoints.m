@@ -1,4 +1,4 @@
-function [fixedMatchedPoints,movingMatchedPoints] = extractPoints(MOVING,FIXED) 
+function [fixedMatchedPoints,movingMatchedPoints,fixedPoints,movingPoints] = extractPoints(MOVING,FIXED) 
 % Feature-based techniques require license to Computer Vision Toolbox
 % Normalize MOVING image
 
@@ -36,11 +36,10 @@ movingPoints = detectSURFFeatures(MOVING,'MetricThreshold',500.000000,'NumOctave
 [movingFeatures,movingValidPoints] = extractFeatures(MOVING,movingPoints,'Upright',true);
 
 % Match features
-indexPairs = matchFeatures(fixedFeatures,movingFeatures,'MatchThreshold',18.499985,'MaxRatio',0.185000);
+indexPairs = matchFeatures(fixedFeatures,movingFeatures,'MatchThreshold',36,'MaxRatio',0.386250);
 fixedMatchedPoints = fixedValidPoints(indexPairs(:,1));
 movingMatchedPoints = movingValidPoints(indexPairs(:,2));
-MOVINGREG.FixedMatchedFeatures = fixedMatchedPoints;
-MOVINGREG.MovingMatchedFeatures = movingMatchedPoints;
+
 
 
 

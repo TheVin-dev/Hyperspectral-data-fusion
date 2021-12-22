@@ -22,28 +22,17 @@ arguments
     autoflag (1,1) logical = 1;
     
 end 
-    datacube = hypercube.DataCube;
+    datacube = rawcube.DataCube;
     data =struct;
-    data.img = colorize(hypercube,"Method","rgb");
+    data.img = colorize(rawcube,"Method","rgb");
     data.heightimg = heightmap;
     sH = size(datacube,[1,2]);
     range = [1,sH(2),1,sH(1)];
-    [~, cutoffidx] =min(abs(hypercube.Wavelength-650));
+    [~, cutoffidx] =min(abs(rawcube.Wavelength-650));
     grayImage = hyperpca(datacube,1);
-%     figure;
-%     image(grayImage,"CDataMapping","scaled");colormap('gray');
-%     daspect([1 1 1])
-%     [x,y] = ginput(4);
-%     close;
-%     filter_points = round([x,y],0);
+
     invtform = inv(tform);
-    % 1 intensity grayImage(xi,yi);
-%     for p=1:length(filter_points)
-%         filt_int = grayImage(filter_points(p,2),filter_points(p,1));
-%     end 
-    
-%     filt = average(filt_int);
-    level = graythresh(grayImage);
+    level = adaptthresh(grayImage);
     mask =imbinarize(grayImage,level);
     data.mask = mask;
 
@@ -55,8 +44,8 @@ if autoflag
     p = P * tform;
     p = round(p(:,1:2)); % Registered coordinate
     
-    data.data = getdata(datacube,p,range,cutoffidx,mask,heightmap,tform,rawcube);
-    
+    data.data = getdata(rawcube,p,range,cutoffidx,mask,heightmap,tform);
+    %getdata_factorized(datacube,p,range,cutoffidx,mask,heightmap,tform,rawcube);%
 else 
     figure;
     image(data.img,"CDataMapping","scaled");colormap('gray');

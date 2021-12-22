@@ -60,12 +60,9 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
     ny = min([sS(1),sR(1)]);
     nx = min([sS(2),sR(2)]);   
     % random sample N points inside images
-    
     for iter=1:iterations
         points = cat(2,randi([1,nx],N,1),randi([1,ny],N,1));
         indices_og = sub2ind([ny,nx],points(:,2),points(:,1));
-        
-        
         errors = zeros(length(points),2);
         maxes = zeros(length(points),1);
         
@@ -78,7 +75,7 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
             if (G(1)> 1 && G(1) < nx) && (G(2)>1 && G(2)<ny)
             dis_points(i,:) = round(G,0);
             errors(i,:) = sqrt((vec - G).^2);
-            maxes(i) = sum(sqrt(abs(vec-G)).^2);    
+            maxes(i) = sum(abs(vec-G));    
             else
                 continue
             end
@@ -108,36 +105,36 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
         i = linspace(1,iterations,iterations);
         overallcorrelation = corr2(FIXED,MOVING);
         avgrmse = average(rmse(:,3));
-        accuracyfig = figure;
+        accuracyfig = figure(102);
         scatter(i,rmse(:,3))
         hold on 
         plot(i,ones(iterations,1)*avgrmse)
         hold off
-        s1 = sprintf("RMSE for %.0f iterations",iterations);
+        s1 = sprintf(" %.0f iterations",iterations);
         title(s1)
         grid ON 
-        ylabel('error [\mum]')
+        ylabel('RMSE [\mum]')
         xlabel('iterations [-]')
         legend("",'Average')
 
-        maxfig = figure;
+        maxfig = figure(100);
         avgmax = average(maxerror);
         scatter(i,maxerror)
         hold on 
         plot(i,ones(iterations,1)*avgmax)
         hold off
-        s1 = sprintf("MAX for %.0f iterations \ncorr: %.4f",iterations,overallcorrelation);
+        s1 = sprintf("%.0f iterations \ncorr: %.4f",iterations,overallcorrelation);
         title(s1)
         grid on 
-        ylabel('error [\mum]')
+        ylabel('MAX [\mum]')
         xlabel('iterations [-]')
         legend("",'Average')
-        ncorrfig = figure;
+        ncorrfig = figure(101);
         scatter(i,ncorr)
-        s1 = sprintf("Correlations between points for %.0f iterations",iterations);
+        s1 = sprintf("%.0f iterations",iterations);
         title(s1)
         grid on 
-        ylabel('Correlation [-]')
+        ylabel('r [-]')
         xlabel('iterations [-]')
         
     end

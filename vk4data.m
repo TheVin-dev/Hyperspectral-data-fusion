@@ -2,18 +2,17 @@ classdef vk4data
     
     properties (Access= private)
         folder = 'Data\LCM\';
+        myoffset;
+        A; 
+        B;
+        Uncoded;
+        Fbase;
+        F;
     end 
     properties 
         name;
         mydir;
         filename;
-        myoffset;
-        A; 
-        B;
-        %C; not neccessary to be a property. 
-        Uncoded;
-        Fbase;
-        F;
         rgb;
         h_norm;
         h_scaled;
@@ -27,6 +26,8 @@ classdef vk4data
         pixel_area; 
         gray;
         filtered;
+        optical;
+        h_scaled_corrected;
     end 
     
 
@@ -41,8 +42,12 @@ classdef vk4data
             obj.name = name(1);
             obj = obj.load();
             obj = obj.extractMeasureConds();
-            
-            
+            obj = obj.extractOptical();
+            obj = obj.extractHeight(); 
+            obj.pixel_area = obj.measure_conds('x_length_per_pixel') * obj.measure_conds('y_length_per_pixel');
+            obj.physical_size = [obj.measure_conds('x_length_per_pixel') * obj.height_size(1), ... 
+            obj.height_size(2) * obj.measure_conds('y_length_per_pixel')]; 
+            obj = obj.correctHeight();
         end 
         function obj = load(obj)
             fid = fopen(obj.mydir);
@@ -80,7 +85,7 @@ classdef vk4data
             myoptical=reshape(myoptical,[opticalrows opticalcols 3]);
             obj.rgb = uint8(permute(myoptical,[2 1 3]));
             [x,y,c] = size(obj.rgb);
-            filtered = zeros(x,y,c);
+            filtered = zeros(x,y,c); %#ok<*PROP> 
             for i =1:3
                 filtered(:,:,i) = medfilt2(obj.rgb(:,:,i));
             end 
@@ -90,14 +95,13 @@ classdef vk4data
            
         end 
 
-	function obj = extractHeight(obj)
+	    function obj = extractHeight(obj)
 		typeoffset=7;
 		heightendoffset=min(obj.myoffset((obj.myoffset-obj.myoffset(typeoffset))>0));
 		C=obj.A(obj.myoffset(typeoffset)+797:heightendoffset)';
 		heightrows=obj.A(obj.myoffset(typeoffset)+1:obj.myoffset(typeoffset)+4)'*obj.Fbase; % size in x direction
 		heightcols=obj.A(obj.myoffset(typeoffset)+5:obj.myoffset(typeoffset)+8)'*obj.Fbase; % size in y direction
-		%heightcodingbase=obj.A(obj.myoffset(typeoffset)+9:obj.myoffset(typeoffset)+12)'*obj.Fbase ; 
-		%largestheightallowed=obj.A(obj.myoffset(typeoffset)+29:obj.myoffset(typeoffset)+32)'*obj.Fbase;
+
 
 		HF=reshape(C,4,heightrows*heightcols)';
 		myheight=HF*obj.Fbase;
@@ -105,39 +109,50 @@ classdef vk4data
 		
 		
         obj.h_scaled = obj.measure_conds('z_length_per_digit') * myheight;
-        myheight_norm = obj.h_scaled ./max(obj.h_scaled,[],'all');
-        obj.h_norm = myheight_norm; 
+%         myheight_norm = obj.h_scaled ./max(obj.h_scaled,[],'all');
+%         obj.h_norm = myheight_norm; 
 		obj.h_raw = myheight; 
         obj.height_size = [heightcols,heightrows];
-        obj.physical_size = [obj.measure_conds('x_length_per_pixel') * obj.height_size(1), ... 
-            obj.height_size(2) * obj.measure_conds('y_length_per_pixel')]; 
-        obj.pixel_area = obj.measure_conds('x_length_per_pixel') * obj.measure_conds('y_length_per_pixel');
+
+        
 	end
-    function showRGB(obj)
-        
-       
-        figure;
-        image(obj.filtered,'CDatamapping','scaled')
-        daspect([1 1 1]); 
-        title("Optical RGB data")
-        
-    end 
-    function showHeight(obj) 
-        figure; 
-        image(obj.h_scaled,'CDataMapping','scaled');
-        colormap('jet')
-        c = colorbar;
-        c.Label.String = "Height in meter";
-        daspect([1 1 1]);
-        title("Height data",'Interpreter','none')
-%         figure;
-%         image(obj.raw_h,'CDatamapping','scaled')
-%     %         colormap('jet')
-%     %         colorbar;
-%         daspect([1 1 1]);
-    end 
-    
-    function obj = extractMeasureConds(obj)
+        function showRGB(obj)
+            figure(3);
+            image(obj.filtered,'CDatamapping','scaled')
+            daspect([1 1 1]); 
+            title("Optical RGB data")
+            
+        end 
+        function showHeight(obj) 
+            figure(1000); 
+            image(obj.h_scaled,'CDataMapping','scaled');
+            colormap('jet')
+            c = colorbar;
+            c.Label.String = "Height in meter";
+            daspect([1 1 1]);
+            title("Height data",'Interpreter','none')
+        end 
+
+        function showLaserOptical(obj)
+            
+            figure(2);
+            subplot(1,3,1)
+            image(obj.rgb,'CDatamapping','scaled')
+            daspect([1 1 1]); 
+            title("Optical RGB data")
+
+            subplot(1,3,2)
+            image(obj.gray,'CDatamapping','scaled');colormap('gray')
+            daspect([1 1 1]); 
+            title("Gray image")
+            colorbar()
+
+%             subplot(1,3,3)
+%             image(obj.laseroptical,'CDatamapping','scaled')
+%             daspect([1 1 1]); 
+%             title("laser intensity image")
+        end
+        function obj = extractMeasureConds(obj)
             offset = 84;
             map = containers.Map();
             id = obj.fileID;
@@ -220,7 +235,65 @@ classdef vk4data
 
 
             end 
+        function obj = correctHeight(obj)
+               %% plane correctation  
+                heights = obj.h_scaled;
+                [totalrows, totalcols] = size(heights);
+                
+                obj.showHeight()
+                [x,y] = ginput(3);
+                x = round(x,0);
+                y = round(y,0);
+                
+                P = [x,y];
+                for point=1:length(P)
+                    h(point) = heights(P(point,2),P(point,1));
+                end
+                points = [P,h'];
+                close;
+                syms x y z 
+                L = [x,y,z];
+                p1 = points(1,:);
+                p2 = points(2,:);
+                p3 = points(3,:);
+                normal = cross(p1-p2,p1-p3);
+                planeeq = dot(normal,L-p1);
+                zplane = solve(planeeq,z);
+                [x,y] = ndgrid(1:1:size(heights,2),1:1:size(heights,2));
+                zplaneFH = matlabFunction(zplane);
+                z = zplaneFH(x,y);
 
+                heightcorrection = z(1:totalrows,1:totalcols);
+                % fm = fmesh(zplane,[1,totalcols, 1, totalrows]);
+                heightcorrection = heightcorrection * max(max(heights));
+                correct_heights = heights - heightcorrection; 
+                obj.h_scaled_corrected = correct_heights;
+%%                 if show
+    %                 figure(1)
+    %                 plot3(x,y,z2)
+    %                 xlabel("x")
+    %                 ylabel('y')
+    %                 zlabel('height')
+    %                 figure(2)
+%                 subplot(1,3,1)
+%                 image(z,'CDatamapping','scaled');
+%                 daspect([1 1 1])
+%                 colorbar
+%                 
+%                 subplot(1,3,2)
+%                 image(heights,'CDatamapping','scaled');
+%                 daspect([1 1 1])
+%                 colorbar
+%                 
+%                 subplot(1,3,3)
+%                 image(correct_heights,'CDatamapping','scaled');
+%                 daspect([1 1 1])
+%                 colorbar
+% 
+%                 end
+
+        end
+    
     end 
     
     

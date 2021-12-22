@@ -59,13 +59,14 @@ classdef hsiContainer
     
     methods 
         function obj = hsiContainer(filename)
-            cwd = pwd; 
-            id = strfind(cwd,'\');
-            folder = cwd(1:id(end));
+%             cwd = pwd; 
+%             id = strfind(cwd,'\');
+%             folder = cwd(1:id(end));
             obj.filename = filename;
-            obj.mydir = fullfile(folder,'\Data\HSI\',filename);
+            obj.mydir = fullfile(filename);
             
             obj = obj.load();
+            obj = obj.PCA(1);
         end        
         function obj = load(obj)
             data = h5read(obj.mydir,"/Array");

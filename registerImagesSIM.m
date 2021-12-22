@@ -40,15 +40,15 @@ end
 fixedRefObj = imref2d(size(FIXED));
 movingRefObj = imref2d(size(MOVING));
 
-% Detect SURF features
+% % Detect SURF features
 % fixedPoints = detectSURFFeatures(FIXED,'MetricThreshold',500.000000,'NumOctaves',4,'NumScaleLevels',6);
 % movingPoints = detectSURFFeatures(MOVING,'MetricThreshold',500.000000,'NumOctaves',4,'NumScaleLevels',6);
-
+% 
 % % Extract features
-% [fixedFeatures,fixedValidPoints] = extractFeatures(FIXED,fixedpoints,'Upright',true);
-% [movingFeatures,movingValidPoints] = extractFeatures(MOVING,movingpoints,'Upright',true);
-
-% Match features
+% [fixedFeatures,fixedValidPoints] = extractFeatures(FIXED,fixedPoints,'Upright',true);
+% [movingFeatures,movingValidPoints] = extractFeatures(MOVING,movingPoints,'Upright',true);
+% 
+% % Match features
 % indexPairs = matchFeatures(fixedFeatures,movingFeatures,'MatchThreshold',18.499985,'MaxRatio',0.185000);
 % fixedMatchedPoints = fixedValidPoints(indexPairs(:,1));
 % movingMatchedPoints = movingValidPoints(indexPairs(:,2));
@@ -56,7 +56,7 @@ movingRefObj = imref2d(size(MOVING));
 % MOVINGREG.MovingMatchedFeatures = movingMatchedPoints;
 
 % Apply transformation - Results may not be identical between runs because of the randomized nature of the algorithm
-[tform,inlieridx] = estimateGeometricTransform2D(movingpoints,fixedpoints,'affine');
+[tform,inlieridx] = estimateGeometricTransform2D(movingpoints,fixedpoints,'similarity');
 MOVINGREG.Transformation = tform;
 MOVINGREG.RegisteredImage = imwarp(MOVING, movingRefObj, tform, 'OutputView', fixedRefObj, 'SmoothEdges', true);
 

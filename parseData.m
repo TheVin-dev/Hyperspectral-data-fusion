@@ -1,36 +1,48 @@
-clear all 
-filename2 = "3A2_stitched.vk4";
-data3A2_full = vk4data(filename2);
-filenamehsi = "3A2_2_Normalized.hdf5";
-A1 = hsiContainer(filenamehsi);
-A1 = A1.PCA(1); 
-data3A2_full = data3A2_full.extractOptical();
-data3A2_full = data3A2_full.extractHeight();
-data3A2_full.showRGB() 
+
+currfolder = pwd;
+id = strfind(currfolder, '\');
+parentdir = currfolder(1:id(end));
+parentdir = append(parentdir, "Data\");
+parentdirlcm = append(parentdir, "lcm\");
+parentdirhsi = append(parentdir, "hsi\");
+
+[lcmfile,lcmpath] = uigetfile("*.vk4",'Select raw LCM vk4 data',parentdirlcm);
+[hsifile,hsipath] = uigetfile("*.hdf5",'Select raw HSI hdf5 data',parentdir);
+
+if all(lcmfile == 0) | all(hsifile ==0)
+    fprintf("Did not select files \n")
+    return
+end
+%%
+hsidata = hsiContainer(append(hsipath,hsifile));
+lcmdata = vk4data(lcmfile);
+
+hsidata = hsidata.PCA(1); 
+lcmdata = lcmdata.extractOptical();
+lcmdata = lcmdata.extractHeight();
+
+lcmdata.showRGB() 
 roi_l = drawrectangle; 
 Positionl = round(roi_l.Position);
-lcm_roi_img = imcrop(rgb2gray(data3A2_full.filtered),Positionl);
-heights  =imcrop(data3A2_full.h_scaled,Positionl);
+lcm_roi_img = imcrop(rgb2gray(lcmdata.filtered),Positionl);
+heights  =imcrop(lcmdata.h_scaled_corrected,Positionl);
 lcm_roi = {lcm_roi_img,heights};%cat(3,lcm_roi_img,heights);
-A1.showFigure(19,"First PCA component", A1.pca);
+hsidata.showFigure(19,"First PCA component", hsidata.pca);
 roi_h = drawrectangle;
 Positionh = round(roi_h.Position);
 r = Positionh;
-hsi_roi_cube = cropData(A1.array,r(2):r(2)+r(4),r(1):r(1)+r(3));
+hsi_roi_cube = cropData(hsidata.array,r(2):r(2)+r(4),r(1):r(1)+r(3));
 close all
+%%
 s = inputdlg("Enter the pigment name",'pigment name');
-datafolder = 'Data\RegistrationResults\';
-folder = pwd;
-id = strfind(folder, '\');
-folder = append(folder(1:id(end)),datafolder);
+reginfolder = 'RegistrationInputs\';
+samplefolder= s{1};
+folder = append(parentdir,reginfolder,samplefolder);
 if not(isempty(s))
-    measurement = strsplit("3A2_2_Normalized.hdf5","_");
-    measurement = measurement{2};
-    namehsi = fullfile(folder,append('hsi_roi_',s{1},"_",measurement,".mat"));
+    namehsi = fullfile(folder,append('hsi_roi_',s{1},".mat"));
     namelcm = fullfile(folder,append('lcm_roi_',s{1}, ".mat"));
     save(namehsi,"hsi_roi_cube",'-mat')
     save(namelcm,"lcm_roi",'-mat')
 
 end
-
 
