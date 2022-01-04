@@ -37,7 +37,7 @@ if length(fixedfeaturepoints) <=1 | length(movingfeaturepoints) <=1
 end
 % registerImages2b1(distorted,originalblur);%
 % registerImages2b1inv(originalblur,distorted);%
-movingreg = registerImagesSIM(distorted,original,movingfeaturepoints,fixedfeaturepoints);%
+movingreg = registerImagesAFF(distorted,original);%
 movingreginv = registerImagesSIM(original,distorted,movingfeaturepoints,fixedfeaturepoints);%
 
 
@@ -46,12 +46,13 @@ regcube = imwarp(regcube, imref2d(size(regcube)), movingreg.Transformation, 'Out
 
 transformedcube = hypercube(regcube,cube.Wavelength,cube.Metadata);
 
-inlierPtsDistorted =movingfeaturepoints(movingreg.inlierIdx,:);
-inlierPtsOriginal  = fixedfeaturepoints(movingreg.inlierIdx,:);
+% inlierPtsDistorted =movingfeaturepoints(movingreg.inlierIdx,:);
+% inlierPtsOriginal  = fixedfeaturepoints(movingreg.inlierIdx,:);
 
 
+imshowpair(movingreg.RegisteredImage,original,'blend')
 %%
-grayImagepca = hyperpca(transformedcube.DataCube,1);
+grayImagepca = distorted;
 level = adaptthresh(grayImagepca);
 mask =imbinarize(grayImagepca,level);
 

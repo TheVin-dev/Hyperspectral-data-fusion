@@ -14,12 +14,15 @@ szintcube = registrationresult.size_interpolatedcube;
 cube = registrationresult.rawcube; 
 tform = registrationresult.reg.Transformation;
 heights = registrationresult.heights;
+mask = registrationresult.mask;
 
 cutoffwavelength = 650;
 [~, cutoffidx] =min(abs(cube.Wavelength-cutoffwavelength));
 heights_scaled = heights * 10^6;
-n = 100000;
+n = 1000;
+tic
 [dtable,coefficients] = perwave_factorized(cube,heights_scaled,cutoffidx,n,mask,tform.T,szintcube);
+toc
 
 % ===============================================
 % Visualisation only 
@@ -63,7 +66,7 @@ I_scaled = I_scaled(I_scaled > cutoff_min & I_scaled<cutoff_max);
 filtered_heights = dtable{bestwavelengthidx}.Height(I_scaled > cutoff_min & I_scaled<cutoff_max);
 IntensHeightsfig =figure;
 wav = str2num(dtable{bestwavelengthidx}.Properties.Description);
-s2 = sprintf("At wavelength %.0f nm",transformedcube.Wavelength(wav));
+s2 = sprintf("At wavelength %.0f nm",cube.Wavelength(wav));
 scatter(filtered_heights,I_scaled)
 title(s2)
 xlabel("h [\mum]")
@@ -74,7 +77,7 @@ logIntensHeightfig = figure;
 wav = str2num(dtable{bestwavelengthidx}.Properties.Description);
 linmodel = fitlm(dtable{bestwavelengthidx}.Height,dtable{bestwavelengthidx}.("Natural log Intensity"));
 c = corr(dtable{bestwavelengthidx}.Height,dtable{bestwavelengthidx}.("Natural log Intensity"),'rows','complete');
-s2 = sprintf("At wavelength %.0f nm \n cor= %.3f",transformedcube.Wavelength(bestwavelengthidx),c);
+s2 = sprintf("At wavelength %.0f nm \n cor= %.3f",cube.Wavelength(bestwavelengthidx),c);
 scatter(dtable{bestwavelengthidx}.Height,dtable{bestwavelengthidx}.("Natural log Intensity"))
 hold on 
 plot(linmodel)

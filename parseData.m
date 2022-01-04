@@ -15,7 +15,7 @@ if all(lcmfile == 0) | all(hsifile ==0)
 end
 %%
 hsidata = hsiContainer(append(hsipath,hsifile));
-lcmdata = vk4data(lcmfile);
+lcmdata = vk4data(lcmfile,lcmpath);
 
 hsidata = hsidata.PCA(1); 
 lcmdata = lcmdata.extractOptical();

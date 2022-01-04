@@ -23,9 +23,6 @@ else
     MOVING(finiteIdx) = (MOVING(finiteIdx) - MOVINGmin) ./ (MOVINGmax - MOVINGmin);
 end
 
-% Default spatial referencing objects
-fixedRefObj = imref2d(size(FIXED));
-movingRefObj = imref2d(size(MOVING));
 
 % Detect SURF features
 fixedPoints = detectSURFFeatures(FIXED,'MetricThreshold',500.000000,'NumOctaves',4,'NumScaleLevels',6);
@@ -36,7 +33,7 @@ movingPoints = detectSURFFeatures(MOVING,'MetricThreshold',500.000000,'NumOctave
 [movingFeatures,movingValidPoints] = extractFeatures(MOVING,movingPoints,'Upright',true);
 
 % Match features
-indexPairs = matchFeatures(fixedFeatures,movingFeatures,'MatchThreshold',36,'MaxRatio',0.386250);
+indexPairs = matchFeatures(fixedFeatures,movingFeatures,'MatchThreshold',18.499985,'MaxRatio',0.18500);
 fixedMatchedPoints = fixedValidPoints(indexPairs(:,1));
 movingMatchedPoints = movingValidPoints(indexPairs(:,2));
 

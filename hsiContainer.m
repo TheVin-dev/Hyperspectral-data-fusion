@@ -59,14 +59,12 @@ classdef hsiContainer
     
     methods 
         function obj = hsiContainer(filename)
-%             cwd = pwd; 
-%             id = strfind(cwd,'\');
-%             folder = cwd(1:id(end));
             obj.filename = filename;
             obj.mydir = fullfile(filename);
             
             obj = obj.load();
             obj = obj.PCA(1);
+            obj = obj.extractCollapsed(obj.array);
         end        
         function obj = load(obj)
             data = h5read(obj.mydir,"/Array");
@@ -76,14 +74,14 @@ classdef hsiContainer
         end
         function obj = extractCollapsed(obj,array)
             res = 0;
-                hsidata= array;
-                s = size(hsidata);
-                
-                for i=1:s(1)
-                    window = hsidata(i,:,:);
-                    img = window + res;
-                end 
-                obj.collapsedimg = squeeze(img);
+            hsidata= array;
+            s = size(hsidata);
+            
+            for i=1:s(1)
+                window = hsidata(i,:,:);
+                img = window + res;
+            end 
+            obj.collapsedimg = squeeze(img);
             
         end 
         function obj = showFigure(obj,handle,strtitle,array)
@@ -92,6 +90,8 @@ classdef hsiContainer
                 image(array,'CDatamapping','scaled'); colormap("gray"); 
                 daspect([1 1 1])
                 title(strtitle);
+                xlabel("pixel")
+                ylabel('pixel')
                 
         end 
         function showOneWave(wavelength)

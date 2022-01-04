@@ -32,10 +32,7 @@ classdef vk4data
     
 
     methods 
-        function obj = vk4data(filename)
-            folder = pwd;
-            id = strfind(folder, '\');
-            folder = append(folder(1:id(end)),obj.folder);
+        function obj = vk4data(filename,folder)
             obj.mydir = fullfile(folder,filename);
             obj.filename = filename;
             name = split(filename,'.');
@@ -130,7 +127,10 @@ classdef vk4data
             c = colorbar;
             c.Label.String = "Height in meter";
             daspect([1 1 1]);
-            title("Height data",'Interpreter','none')
+            s = sprintf("Physical dimensions: %.4f m x %.4f m",obj.physical_size);
+            title(s,'Interpreter','none')
+            xlabel('pixel')
+            ylabel('pixel')
         end 
 
         function showLaserOptical(obj)

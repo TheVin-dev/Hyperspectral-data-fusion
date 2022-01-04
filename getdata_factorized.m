@@ -37,7 +37,7 @@ function T = getdata_factorized(hsicube,P,rangecoords,cutidx,mask,H,tform,rawcub
     col = round(interp1([1 size(H,2)], [1 size(rawcube,2)], P_transformed(:,2)),0);
     row = round(interp1([1 size(H,1)], [1 size(rawcube,1)], P_transformed(:,1)),0);
    
-
+    
     for waveband=1:cutidx
         linearnanIndicesC = sub2ind(size(rawcube,[1,2,3]),row,col,waveband*ones(length(row),1));
         linearnanIndicesH = sub2ind(size(H),P_transformed(:,2),P_transformed(:,1));
