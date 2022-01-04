@@ -33,10 +33,11 @@ originalblur =imgaussfilt(original,5);
 if length(fixedfeaturepoints) <=1 | length(movingfeaturepoints) <=1 
     fprintf("There are not enough extracted features for registration \n")
 end
-movingreg = registerImages2b1(distorted,originalblur);%
-movingreginv = registerImages2b1inv(originalblur,distorted);%
-% movingreg = registerImagesSIM(distorted,original,movingfeaturepoints,fixedfeaturepoints)
-% movingreginv =  %registerImagesSIM(original,distorted,movingfeaturepoints,fixedfeaturepoints);%
+% registerImages2b1(distorted,originalblur);%
+% registerImages2b1inv(originalblur,distorted);%
+movingreg = $
+egisterImagesAFF(distorted,original);%
+movingreginv =  %registerImagesSIM(original,distorted,movingfeaturepoints,fixedfeaturepoints);%
 
 
 regcube = imresize(cube.DataCube,size(distorted));
@@ -55,7 +56,6 @@ level = adaptthresh(grayImagepca);
 mask =imbinarize(grayImagepca,level);
 
 fullresult = struct; 
-fullresult.original = original;
 fullresult.reg = movingreg; 
 fullresult.reginv = movingreginv; 
 fullresult.heights = heights; 
@@ -72,6 +72,6 @@ no_samplepoints = 1000;
 iterations = 1000;
 registration_accuracyfolder = append(resfullfolder,'registration');
 [~,~,~] =  EstimateERROR(original,movingreg.RegisteredImage,movingreg.Transformation.T, ... 
-    movingreginv.Transformation.T,no_samplepoints,iterations,'scale',1,'show',true,'save',true,'folder',registration_accuracyfolder);
+    movingreginv.Transformation.T,no_samplepoints,iterations,'scale',1,'show',true,'save',false,'folder',registration_accuracyfolder);
 
 

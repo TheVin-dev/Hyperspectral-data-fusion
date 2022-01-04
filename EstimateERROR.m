@@ -18,16 +18,6 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
     % Optional arguments with defaults: 
     %            show logical  = false;
 %                scale double = 1;
-%      arguments 
-%         FIXED;
-%         MOVING;
-%         tform; 
-%         invtform;
-%         N double =100;
-%         
-%         iterations double = 100;
-%         varargin;
-%      end
     
     defaultshow=false;
     defaultscale = 1;
@@ -110,8 +100,6 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
         hold on 
         plot(i,ones(iterations,1)*avgrmse)
         hold off
-        s1 = sprintf(" %.0f iterations",iterations);
-        title(s1)
         grid ON 
         ylabel('RMSE [\mum]')
         xlabel('iterations [-]')
@@ -123,16 +111,13 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
         hold on 
         plot(i,ones(iterations,1)*avgmax)
         hold off
-        s1 = sprintf("%.0f iterations \ncorr: %.4f",iterations,overallcorrelation);
-        title(s1)
         grid on 
         ylabel('MAX [\mum]')
         xlabel('iterations [-]')
         legend("",'Average')
+
         ncorrfig = figure(101);
         scatter(i,ncorr)
-        s1 = sprintf("%.0f iterations",iterations);
-        title(s1)
         grid on 
         ylabel('r [-]')
         xlabel('iterations [-]')
@@ -143,7 +128,8 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
         name1 = sprintf("rmse_%0.f.png",iterations);
         name2 = sprintf("max_%.0f.png",iterations);
         name3 = sprintf("corr_%.0f.png",iterations);
-        sprintf("Average rmse: %.2f \nAverage max: %.2f", avgrmse,avgmax)
+        avgcorr = average(ncorr);
+        sprintf("Average rmse: %.2f \nAverage max: %.2f \nAverage corr: %.3f", avgrmse,avgmax,avgcorr)
         saveas(accuracyfig,fullfile(folder,name1))
         saveas(maxfig,fullfile(folder,name2))
         saveas(ncorrfig,fullfile(folder,name3))
