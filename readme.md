@@ -2,6 +2,12 @@
 This document aims to explain the general use of the program and its functions. 
 
 ## Goal of the program
+An OCT system can scan across wavelengths and accurately determine the thickness of paintlayers on paintings.
+The aim is to split these measurements using two robust easily deployable systems; a hyperspectral image camera and a laser confocal microscope. 
+To compare the height of the paint across different wavelengths, we first need to overlay the measurements of 
+the HSI and LCM. This is done using image registration in MATLAB. 
+
+
 
 ## Use
 1. Extract ROI for both LCM and HSI using getData. Need to be (roughly) same area. 
