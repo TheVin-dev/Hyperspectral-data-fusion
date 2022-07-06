@@ -64,13 +64,12 @@ classdef hsiContainer
             
             obj = obj.load();
             obj = obj.PCA(1);
-            obj = obj.extractCollapsed(obj.array);
+            obj = obj.extractCollapsed(obj.array.DataCube);
         end        
         function obj = load(obj)
             data = h5read(obj.mydir,"/Array");
             tmparray = permute(data,[1,3,2]);
             obj.array = hypercube(permute(tmparray,[2,3,1]),obj.waves);
-            obj = extractCollapsed(obj,tmparray);
         end
         function obj = extractCollapsed(obj,array)
             res = 0;
@@ -151,13 +150,4 @@ classdef hsiContainer
             obj.l_orig_h_per_pixel = l_orig_h_per_pixel;
         end
     end 
-    
-    
-    
-    
-    
-
-
-
-
 end 

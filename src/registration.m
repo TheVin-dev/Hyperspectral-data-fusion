@@ -8,7 +8,7 @@ parentdir = currfolder(1:id(end));
 [hsifile,hsipath] = uigetfile(".mat","Select HSI file",append(parentdir,"RegistrationInputs\"));
 
 
-sample_folder = '2b1\';
+sample_folder = '6C1\';
 reginfolder = append(maindatafolder,"RegistrationInputs\",sample_folder);
 regfolder = append(maindatafolder,"RegistrationOutputs\",sample_folder);
 resfolder = append(maindatafolder,'Results\',sample_folder);
@@ -33,11 +33,10 @@ originalblur =imgaussfilt(original,5);
 if length(fixedfeaturepoints) <=1 | length(movingfeaturepoints) <=1 
     fprintf("There are not enough extracted features for registration \n")
 end
-% registerImages2b1(distorted,originalblur);%
-% registerImages2b1inv(originalblur,distorted);%
-movingreg = $
-egisterImagesAFF(distorted,original);%
-movingreginv =  %registerImagesSIM(original,distorted,movingfeaturepoints,fixedfeaturepoints);%
+% movingreg = registerImages2b1(distorted,originalblur);%
+% movingreginv = registerImages2b1inv(originalblur,distorted);%
+movingreg = registerImagesSIM(distorted,original,movingfeaturepoints,fixedfeaturepoints);
+movingreginv =  registerImagesSIM(original,distorted,movingfeaturepoints,fixedfeaturepoints);
 
 
 regcube = imresize(cube.DataCube,size(distorted));
@@ -54,8 +53,11 @@ imshowpair(movingreg.RegisteredImage,original,'blend')
 grayImagepca = distorted;
 level = adaptthresh(grayImagepca);
 mask =imbinarize(grayImagepca,level);
-
+tmpdim = cell2mat(fulloriginal.lcm_roi(3));
+physdimen = tmpdim(1:2);
 fullresult = struct; 
+fullresult.original = original;
+fullresult.dim = physdimen;
 fullresult.reg = movingreg; 
 fullresult.reginv = movingreginv; 
 fullresult.heights = heights; 
@@ -71,7 +73,7 @@ save(fullfile(regfullfolderout,s),'-struct',"fullresult")
 no_samplepoints = 1000;
 iterations = 1000;
 registration_accuracyfolder = append(resfullfolder,'registration');
-[~,~,~] =  EstimateERROR(original,movingreg.RegisteredImage,movingreg.Transformation.T, ... 
+[~,~,~] =  EstimateERROR(original,distorted,movingreg.Transformation.T, ... 
     movingreginv.Transformation.T,no_samplepoints,iterations,'scale',1,'show',true,'save',false,'folder',registration_accuracyfolder);
 
 

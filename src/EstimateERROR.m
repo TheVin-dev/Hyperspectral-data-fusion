@@ -42,7 +42,6 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
     folder = p.Results.folder;
     rmse = zeros(iterations,3);
     maxerror =zeros(iterations,1);
-    coords = zeros(iterations,2);
     
     sS = size(FIXED); 
     sR = size(MOVING); 
@@ -59,13 +58,13 @@ function [rmse,maxerror,ncorr] = EstimateERROR(FIXED,MOVING,tform,invtform,N,ite
         for i=1:length(points)
             vec = points(i,:);
             pi = [vec,0]; 
-            G = pi* (invtform*tform);
+            G = pi*(invtform * tform);
             G = G(1:2); % points on the registered image MOVING
             
             if (G(1)> 1 && G(1) < nx) && (G(2)>1 && G(2)<ny)
-            dis_points(i,:) = round(G,0);
-            errors(i,:) = sqrt((vec - G).^2);
-            maxes(i) = sum(abs(vec-G));    
+                dis_points(i,:) = round(G,0);
+                errors(i,:) = sqrt((vec - G).^2);
+                maxes(i) = sum(abs(vec-G));    
             else
                 continue
             end

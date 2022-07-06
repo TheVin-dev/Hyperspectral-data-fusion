@@ -136,21 +136,16 @@ classdef vk4data
         function showLaserOptical(obj)
             
             figure(2);
-            subplot(1,3,1)
+            subplot(1,2,1)
             image(obj.rgb,'CDatamapping','scaled')
             daspect([1 1 1]); 
             title("Optical RGB data")
 
-            subplot(1,3,2)
+            subplot(1,2,2)
             image(obj.gray,'CDatamapping','scaled');colormap('gray')
             daspect([1 1 1]); 
             title("Gray image")
             colorbar()
-
-%             subplot(1,3,3)
-%             image(obj.laseroptical,'CDatamapping','scaled')
-%             daspect([1 1 1]); 
-%             title("laser intensity image")
         end
         function obj = extractMeasureConds(obj)
             offset = 84;
@@ -239,12 +234,10 @@ classdef vk4data
                %% plane correctation  
                 heights = obj.h_scaled;
                 [totalrows, totalcols] = size(heights);
-                
                 obj.showHeight()
                 [x,y] = ginput(3);
                 x = round(x,0);
                 y = round(y,0);
-                
                 P = [x,y];
                 for point=1:length(P)
                     h(point) = heights(P(point,2),P(point,1));
@@ -259,38 +252,37 @@ classdef vk4data
                 normal = cross(p1-p2,p1-p3);
                 planeeq = dot(normal,L-p1);
                 zplane = solve(planeeq,z);
-                [x,y] = ndgrid(1:1:size(heights,2),1:1:size(heights,2));
+                [x,y] = ndgrid(1:1:size(heights,1),1:1:size(heights,2));
                 zplaneFH = matlabFunction(zplane);
                 z = zplaneFH(x,y);
-
                 heightcorrection = z(1:totalrows,1:totalcols);
-                % fm = fmesh(zplane,[1,totalcols, 1, totalrows]);
                 heightcorrection = heightcorrection * max(max(heights));
                 correct_heights = heights - heightcorrection; 
                 obj.h_scaled_corrected = correct_heights;
-%%                 if show
-    %                 figure(1)
-    %                 plot3(x,y,z2)
-    %                 xlabel("x")
-    %                 ylabel('y')
-    %                 zlabel('height')
-    %                 figure(2)
-%                 subplot(1,3,1)
-%                 image(z,'CDatamapping','scaled');
-%                 daspect([1 1 1])
-%                 colorbar
-%                 
-%                 subplot(1,3,2)
-%                 image(heights,'CDatamapping','scaled');
-%                 daspect([1 1 1])
-%                 colorbar
-%                 
-%                 subplot(1,3,3)
-%                 image(correct_heights,'CDatamapping','scaled');
-%                 daspect([1 1 1])
-%                 colorbar
-% 
-%                 end
+                show = true;
+                if show
+                    figure(1)
+                    plot3(x,y,z)
+                    xlabel("x")
+                    ylabel('y')
+                    zlabel('height')
+                    figure(2)
+                subplot(1,3,1)
+                image(z,'CDatamapping','scaled');
+                daspect([1 1 1])
+                colorbar
+                
+                subplot(1,3,2)
+                image(heights,'CDatamapping','scaled');
+                daspect([1 1 1])
+                colorbar
+                
+                subplot(1,3,3)
+                image(correct_heights,'CDatamapping','scaled');
+                daspect([1 1 1])
+                colorbar
+
+                end
 
         end
     

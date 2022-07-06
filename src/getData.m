@@ -1,6 +1,6 @@
 
 currfolder = pwd;
-id = strfind(currfolder, '\');
+id = strfind(currfoldxtr, '\');
 parentdir = currfolder(1:id(end));
 parentdir = append(parentdir, "Data\");
 parentdirlcm = append(parentdir, "lcm\");
@@ -16,16 +16,17 @@ end
 %%
 hsidata = hsiContainer(append(hsipath,hsifile));
 lcmdata = vk4data(lcmfile,lcmpath);
-
-hsidata = hsidata.PCA(1); 
-lcmdata = lcmdata.extractOptical();
-lcmdata = lcmdata.extractHeight();
-
 lcmdata.showRGB() 
 roi_l = drawrectangle; 
 Positionl = round(roi_l.Position);
 lcm_roi_img = imcrop(rgb2gray(lcmdata.filtered),Positionl);
+
 heights  =imcrop(lcmdata.h_scaled_corrected,Positionl);
+rot = inputdlg("Rotate by (deg): ");
+lcm_roi_img = imrotate(lcm_roi_img,str2double(rot{1}));
+
+dimmatrix = zeros(size(lcm_roi_img));
+dimmatrix(1:2,1) = lcmdata.physical_size;
 lcm_roi = {lcm_roi_img,heights};%cat(3,lcm_roi_img,heights);
 hsidata.showFigure(19,"First PCA component", hsidata.pca);
 roi_h = drawrectangle;
